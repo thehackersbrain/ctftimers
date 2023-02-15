@@ -1,0 +1,85 @@
+use scraper::{Html, Selector};
+use std::error::Error;
+use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
+// use colored::*;
+// use prettytable::{Table, row, cell};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let url = "https://ctftime.org/event/list/upcoming";
+    let headers = create_headers();
+
+    let data = extract_data(url, headers).await?;
+    // print_data(data);
+    println!("{:?}", data);
+
+    Ok(())
+}
+
+async fn extract_data(url: &str, headers: HeaderMap) -> Result<Vec<Vec<String>>, Box<dyn Error>> {
+    let response = reqwest::Client::new()
+        .get(url)
+        .headers(headers)
+        .send()
+        .await?
+        .text()
+        .await?;
+
+    let fragment = Html::parse_document(&response);
+    println!("{:?}", &fragment);
+    let events_table = fragment.select(&Selector::parse("#content > div > div > div.col-md-12 > div > div > div > div > div.panel-body > table").unwrap()).next();
+
+    let mut names = Vec::new();
+    let mut dates = Vec::new();
+    let mut locations = Vec::new();
+
+    if let Some(table) = events_table {
+        for row in table.select(&Selector::parse("tr").unwrap()).skip(1) {
+            let columns = row.select(&Selector::parse("td").unwrap()).collect::<Vec<_>>();
+
+            if columns.len() < 3 {
+                continue; // skip rows with fewer than 3 columns
+            }
+
+            let name = match columns[0].select(&Selector::parse("a").unwrap()).next() {
+                Some(name_element) => name_element.inner_html(),
+                None => "".to_string(), // handle the None case
+            };
+
+            let date = match columns[1].text().next() {
+                Some(date_text) => date_text.to_string(),
+                None => "".to_string(), // handle the None case
+            };
+
+            let location = match columns[2].text().next() {
+                Some(location_text) => location_text.to_string(),
+                None => "".to_string(), // handle the None case
+            };
+
+            names.push(name);
+            dates.push(date);
+            locations.push(location);
+        }
+    }
+
+    let data = vec![names, dates, locations];
+    Ok(data)
+}
+
+// fn print_data(data: Vec<Vec<String>>) {
+//     let mut table = Table::new();
+//     table.add_row(row![b -> "Name", b -> "Date", b -> "Location"]);
+
+//     for i in 0..data[0].len() {
+//         table.add_row(row![&data[0][i], &data[1][i], &data[2][i]]);
+//     }
+
+//     table.printstd();
+// }
+
+fn create_headers() -> HeaderMap {
+    let mut headers = HeaderMap::new();
+    headers.insert(USER_AGENT, HeaderValue::from_static("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"));
+    headers
+}
+
