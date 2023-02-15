@@ -40,7 +40,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if cli.next {
         let month_num = chrono::Local::now().month();
-        month = months.get(&(month_num + 1)).unwrap().to_string();
+        match month_num {
+            12 => month = months.get(&(month_num - 11)).unwrap().to_string(),
+            _ => month = months.get(&(month_num + 1)).unwrap().to_string(),
+        };
     } else {
         month = months.get(&chrono::Local::now().month()).unwrap().to_string();
     }
