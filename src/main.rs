@@ -114,9 +114,9 @@ fn print_data(
     let mut table = Table::new();
     let mut index = 0;
     table.add_row(Row::new(vec![
-        Cell::new("Name"),
-        Cell::new("From - To"),
-        Cell::new("Style"),
+        Cell::new("Event Name"),
+        Cell::new("Date [From - To]"),
+        Cell::new("Event Style"),
         Cell::new("Location"),
         Cell::new("Weight")
     ]));
