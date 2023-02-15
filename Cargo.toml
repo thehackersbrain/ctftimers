@@ -1,5 +1,9 @@
 [package]
 name = "ctftime"
+author = "Gaurav Raj [@thehackersbrain]"
+description = "A CLI tool for listing all upcoming CTF events listed on CTFTime.org"
+about = "A CLI tool for listing all upcoming CTF events listed on CTFTime.org"
+repository = "https://github.com/thehackersbrain/ctftimers"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,10 +11,11 @@ edition = "2021"
 
 [dependencies]
 reqwest = {version = "0.11", features = ["blocking"]}
-scraper = "0.12.0"
-tabled = "0.9.0"
-tokio = { version = "1", features = ["full"] }
+# scraper = "0.12.0"
+# tabled = "0.9.0"
+# tokio = { version = "1", features = ["full"] }
 select = "0.6"
 colored = "2.0.0"
 prettytable-rs = "0.10.0"
 chrono = "0.4.23"
+clap = { version = "4.0", features = ["derive"] }
